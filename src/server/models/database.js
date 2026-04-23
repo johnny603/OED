@@ -15,7 +15,6 @@ const pgp = require('pg-promise')({
 const path = require('path');
 const patchMomentType = require('./patch-moment-type');
 const patchPointType = require('./patch-point-type');
-const { log } = require('../log');
 
 patchMomentType(pgp);
 patchPointType(pgp);
@@ -60,6 +59,8 @@ function sqlFile(filePath) {
 	const sanitizedPath = filePath.replace(/\.\./g, ''); 
     const resolvedPath = path.resolve(sqlFilesDir, sanitizedPath);
 	if (!resolvedPath.startsWith(path.resolve(sqlFilesDir))) {
+		// Lazy require to avoid circular dependency: database.js -> log.js -> db.js -> database.js
+		const { log } = require('../log');
 		log.error(`Path traversal detected - resolved path: ${resolvedPath}, expected base: ${path.resolve(sqlFilesDir)}`);
 		throw new Error('Invalid file path: path traversal detected');
 	}
