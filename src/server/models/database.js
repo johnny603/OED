@@ -15,7 +15,6 @@ const pgp = require('pg-promise')({
 const path = require('path');
 const patchMomentType = require('./patch-moment-type');
 const patchPointType = require('./patch-point-type');
-const { log } = require('../log');
 
 patchMomentType(pgp);
 patchPointType(pgp);
@@ -57,6 +56,9 @@ const loadedSqlFiles = {};
  * @returns {pgPromise.QueryFile}
  */
 function sqlFile(filePath) {
+	// Lazy-require log here to avoid a circular dependency:
+	// models/database.js → log.js → db.js → models/database.js
+	const { log } = require('../log');
 	const sanitizedPath = filePath.replace(/\.\./g, ''); 
     const resolvedPath = path.resolve(sqlFilesDir, sanitizedPath);
 	if (!resolvedPath.startsWith(path.resolve(sqlFilesDir))) {
