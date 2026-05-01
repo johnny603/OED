@@ -169,10 +169,9 @@ const defaultLogger = new Logger(logFile);
  * Wherever logging is available, the Node.js runtime will call this function to log unhandled rejections.
  * This helps with debugging, especially in tests.
  */
-process.on('unhandledRejection', (reason, p) => {
-	p.catch(e => {
-		defaultLogger.error(`Unhandled Promise Rejection: ${reason}`, e);
-	});
+process.on('unhandledRejection', (reason) => {
+	const message = reason instanceof Error ? reason.message : String(reason);
+	defaultLogger.error(`Unhandled Promise Rejection: ${message}`, reason instanceof Error ? reason : null);
 });
 
 defaultLogger.logToDb = true;
